@@ -1,0 +1,101 @@
+/* VARIABLES */
+:root {
+	--background: rgb(189, 189, 189);
+
+	--button-basic: hsl(0, 6%, 27%);
+	--button-basic-hover: hsl(0, 6%, 32%);
+
+	--button-calc: hsl(0, 49%, 50%);
+	--button-calc-hover: hsl(0, 49%, 45%);
+
+	--button-equal: rgb(82, 147, 79);
+	--button-equal-hover: hsl(117, 30%, 40%);
+}
+
+/* CONTAINER */
+.calculator {
+	background-color: var(--background);
+	border-radius: 10px;
+	padding: 10px;
+	padding-top: 20px;
+}
+
+.center-container {
+	width: auto;
+	height: auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.flex-column-container {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.grid-container {
+	display: grid;
+	justify-content: center;
+	grid-template-columns: 50px 50px 50px 50px;
+	gap: 2px;
+}
+
+/* TEXTBOX */
+.textbox {
+	width: 205px;
+	min-height: 2rem;
+	height: 2rem;
+	padding: 0px 2px 0px 2px;
+	height: fit-content;
+	background-color: white;
+	text-align: end;
+	font-size: x-large;
+	white-space: nowrap;
+	overflow-x: auto;
+	overflow-y: hidden;
+}
+.textbox::-webkit-scrollbar {
+	height: 0.2em;
+	background-color: var(--background);
+}
+.textbox::-webkit-scrollbar-track {
+	border-radius: 4px;
+}
+.textbox::-webkit-scrollbar-thumb:horizontal {
+	background-color: var(--button-equal);
+}
+
+.textbox::-moz-scrollbar {
+	width: 10px;
+	height: 10px;
+	background-color: #ff0000;
+	border-radius: 5px;
+}
+
+#prev-textbox {
+	font-size: larger;
+}
+
+/* BUTTONS */
+button {
+	height: 50px;
+	background-color: var(--button-basic);
+	color: azure;
+	border-radius: 10px;
+}
+button:hover {
+	filter: brightness(1.15);
+}
+button:active {
+	filter: brightness(0.9);
+}
+
+.button-operator {
+	background-color: var(--button-calc);
+}
+
+.button-equal {
+	background-color: var(--button-equal);
+	grid-column: span 2;
+}
