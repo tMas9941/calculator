@@ -6,8 +6,8 @@ const buttonClear = document.getElementById("button-clear");
 const buttonEqual = document.getElementById("button-equal");
 
 let operator = "";
-let prevNumber = "";
-let currNumber = 0;
+let prevNumber = null;
+let currNumber = "0";
 
 const operations = {
 	add: (num1, num2) => num1 + num2,
@@ -24,32 +24,35 @@ const handleEqualPressed = () => {
 		left: 10000,
 	});
 	operator = "";
-	prevNumber = 0;
-	currNumber = 0;
+	prevNumber = null;
+	currNumber = "0";
 };
 
-const calculateResult = () => {
-	let result = operations[operator](prevNumber, currNumber);
-	console.log("result  ", result);
-	return result;
-};
+const calculateResult = () => operations[operator](Number(prevNumber), Number(currNumber));
 
 const addNumber = (e) => {
-	if (e.target.textContent === "." && currTextbox.textContent.includes(".")) return;
-	if (String(currNumber).length >= 16) return;
-	currNumber = Number(currNumber + e.target.textContent.toString());
+	if (e.target.textContent === ".") {
+		// limit decimal point count
+		if (currTextbox.textContent.includes(".")) {
+			return;
+		}
+	} else if (currNumber === "0") {
+		// replece starting 0 with new number
+		currNumber = e.target.textContent;
+		currTextbox.innerText = currNumber;
+		return;
+	}
+
+	currNumber = currNumber + e.target.textContent; // add new number
 	currTextbox.innerText = currNumber;
 };
 
 const addOperator = (e) => {
-	// console.log("e : ", e.target.dataset.operator);
-	console.log("operator  ", operator);
-
-	if (currNumber && operator) currTextbox.textContent = calculateResult();
+	if (currNumber && operator && prevNumber) currTextbox.textContent = calculateResult(); // calculate existing operation
 
 	operator = e.target.dataset.operator;
 	prevNumber = Number(currTextbox.textContent);
-	currNumber = 0;
+	currNumber = "0";
 
 	prevTextbox.textContent = currTextbox.textContent + e.target.textContent;
 	prevTextbox.scrollTo({
@@ -59,9 +62,9 @@ const addOperator = (e) => {
 
 const clear = () => {
 	prevTextbox.textContent = "";
-	currTextbox.textContent = 0;
-	prevNumber = 0;
-	currNumber = 0;
+	currTextbox.textContent = "0";
+	prevNumber = null;
+	currNumber = "0";
 };
 
 // add event listeners
