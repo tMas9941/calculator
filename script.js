@@ -1,79 +1,78 @@
 const prevTextbox = document.getElementById("prev-textbox");
 const currTextbox = document.getElementById("curr-textbox");
-const numbers = document.querySelectorAll("button[data-number]");
-const operators = document.querySelectorAll("button[data-operator]");
-const buttonClear = document.getElementById("button-clear");
-const buttonEqual = document.getElementById("button-equal");
 
-let operator = "";
-let prevNumber = null;
-let currNumber = "0";
+const clearButton = document.getElementById("button-clear");
+const equalButton = document.getElementById("button-equal");
+const delButton = document.getElementById("button-del");
 
-const operations = {
-	add: (num1, num2) => num1 + num2,
-	extract: (num1, num2) => num1 - num2,
-	divide: (num1, num2) => num1 / num2,
-	multiply: (num1, num2) => num1 * num2,
-};
+const numberButtons = document.querySelectorAll("button[data-number]");
+const operatorButtons = document.querySelectorAll("button[data-operator]");
+
+let calcString = "";
+let resetNumbers = false;
+
+const operators = [...operatorButtons].map((button) => button.innerHTML);
 
 const handleEqualPressed = () => {
-	if (!operator || !currNumber) return;
-	prevTextbox.textContent = "";
-	currTextbox.textContent = calculateResult();
-	currTextbox.scrollTo({
-		left: 10000,
-	});
-	operator = "";
-	prevNumber = null;
-	currNumber = "0";
+	if (calcString === "") return;
+	if (isOperator(-1)) calcString = calcString.slice(0, -1);
+
+	calcString = calcString.replaceAll("÷", "/");
+	calcString = calcString.replaceAll("×", "*");
+	changeCalcString(calculateResult());
+	resetNumbers = true;
 };
 
-const calculateResult = () => operations[operator](Number(prevNumber), Number(currNumber));
+const calculateResult = () => eval(calcString).toString();
 
 const addNumber = (e) => {
-	if (e.target.textContent === ".") {
-		// limit decimal point count
-		if (currTextbox.textContent.includes(".")) {
+	if (resetNumbers && !isOperator(-1)) changeCalcString("");
+	resetNumbers = false;
+	if (e.target.innerHTML === ".") {
+		if (calcString.includes(".")) {
+			// limit decimal point count
 			return;
+		} else if (calcString.length === 0 || isOperator(-1)) {
+			// add 0 before empty decimal
+			calcString = calcString + "0";
 		}
-	} else if (currNumber === "0") {
-		// replece starting 0 with new number
-		currNumber = e.target.textContent;
-		currTextbox.innerText = currNumber;
-		return;
 	}
-
-	currNumber = currNumber + e.target.textContent; // add new number
-	currTextbox.innerText = currNumber;
+	changeCalcString(calcString + e.target.innerHTML);
 };
 
 const addOperator = (e) => {
-	if (currNumber && operator && prevNumber) currTextbox.textContent = calculateResult(); // calculate existing operation
-
-	operator = e.target.dataset.operator;
-	prevNumber = Number(currTextbox.textContent);
-	currNumber = "0";
-
-	prevTextbox.textContent = currTextbox.textContent + e.target.textContent;
-	prevTextbox.scrollTo({
-		left: 10000,
-	});
+	if (calcString === "") return;
+	if (isOperator(-1)) {
+		changeCalcString(calcString.slice(0, -1) + e.target.dataset.operator);
+	} else {
+		changeCalcString(calcString + e.target.dataset.operator);
+	}
 };
 
-const clear = () => {
-	prevTextbox.textContent = "";
-	currTextbox.textContent = "0";
-	prevNumber = null;
-	currNumber = "0";
-};
+const clear = () => changeCalcString("");
+
+const del = () => changeCalcString(calcString.slice(0, -1));
 
 // add event listeners
-numbers.forEach((number) => {
+numberButtons.forEach((number) => {
 	number.addEventListener("click", addNumber);
 });
-
-operators.forEach((number) => {
+operatorButtons.forEach((number) => {
 	number.addEventListener("click", addOperator);
 });
-buttonClear.addEventListener("click", clear);
-buttonEqual.addEventListener("click", handleEqualPressed);
+clearButton.addEventListener("click", clear);
+equalButton.addEventListener("click", handleEqualPressed);
+delButton.addEventListener("click", del);
+
+function changeCalcString(newValue) {
+	calcString = newValue;
+	if (calcString === "") {
+		currTextbox.innerHTML = "0";
+	} else {
+		currTextbox.innerHTML = calcString;
+	}
+}
+
+function isOperator(position) {
+	return operators.includes(calcString.at(position));
+}
