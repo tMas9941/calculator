@@ -6,32 +6,40 @@ const delButton = document.getElementById("button-del");
 const numberButtons = document.querySelectorAll("button[data-number]");
 const operatorButtons = document.querySelectorAll("button[data-operator]");
 
-let calcString = "";
+let calcString = "0";
 let resetNumbers = false;
 
 const operators = [...operatorButtons].map((button) => button.innerHTML);
 const operatorsRegExp = new RegExp(`[${operators.join("\\")}]`);
+const keydownButtons = {
+	[clearButton.innerHTML]: clearButton,
+	Delete: clearButton,
+	[equalButton.innerHTML]: equalButton,
+	Enter: equalButton,
+	[delButton.innerHTML]: delButton,
+	Backspace: delButton,
+};
+[...numberButtons].forEach((button) => (keydownButtons[button.innerHTML] = button));
+[...operatorButtons].forEach((button) => (keydownButtons[button.dataset.operator] = button));
 
 const handleEqualPressed = () => {
-	if (calcString === "") return;
+	if (calcString === "0") return;
 	if (isOperator(-1)) calcString = calcString.slice(0, -1); // remove unnecessary operator
 	calcString = calcString.replaceAll("÷", "/");
 	calcString = calcString.replaceAll("×", "*");
 
-	const result = calculateResult();
+	const result = eval(calcString).toString();
 	if (result !== calcString) {
 		changeCalcString(result);
 		resetNumbers = true;
 	}
 };
 
-const calculateResult = () => eval(calcString).toString();
-
 const addNumber = (e) => {
-	if (resetNumbers && !isOperator(-1)) changeCalcString("");
+	if (resetNumbers && !isOperator(-1)) changeCalcString("0");
 	resetNumbers = false;
+	const lastNumber = calcString.split(operatorsRegExp).at(-1);
 	if (e.target.innerHTML === ".") {
-		const lastNumber = calcString.split(operatorsRegExp).at(-1);
 		if (lastNumber.includes(".")) {
 			// limit decimal points in numbers
 			return;
@@ -39,12 +47,16 @@ const addNumber = (e) => {
 			// add 0 before empty decimal
 			calcString += "0";
 		}
-	} else if (e.target.innerHTML === "0" && calcString === "0") return;
-	changeCalcString(calcString + e.target.innerHTML); // limit 0s
+	} else if (lastNumber === "0") {
+		if (e.target.innerHTML === "0") return; // limit 0s
+		if (!isNaN(Number(e.target.innerHTML)))
+			// rewrite 0 if it is the first char
+			return changeCalcString(calcString.slice(0, -1) + e.target.innerHTML);
+	}
+	changeCalcString(calcString + e.target.innerHTML);
 };
 
 const addOperator = (e) => {
-	if (calcString === "") return;
 	if (isOperator(-1)) {
 		changeCalcString(calcString.slice(0, -1) + e.target.innerHTML);
 	} else {
@@ -52,9 +64,9 @@ const addOperator = (e) => {
 	}
 };
 
-const clear = () => changeCalcString("");
+const clear = () => changeCalcString("0");
 
-const del = () => changeCalcString(calcString.slice(0, -1));
+const del = () => changeCalcString(calcString.slice(0, -1) || "0");
 
 // add event listeners
 numberButtons.forEach((number) => {
@@ -67,41 +79,20 @@ clearButton.addEventListener("click", clear);
 equalButton.addEventListener("click", handleEqualPressed);
 delButton.addEventListener("click", del);
 
+document.addEventListener("keydown", function (event) {
+	if (Object.keys(keydownButtons).includes(event.key)) {
+		keydownButtons[event.key].click();
+		keydownButtons[event.key].classList.add("buton-keydown");
+		setTimeout(() => keydownButtons[event.key].classList.remove("buton-keydown"), 100);
+		event.preventDefault();
+	}
+});
+
 function changeCalcString(newValue) {
 	calcString = newValue;
-	if (calcString === "") {
-		currTextbox.innerHTML = "0";
-	} else {
-		currTextbox.innerHTML = calcString;
-	}
+	currTextbox.innerHTML = newValue;
 }
 
 function isOperator(position) {
 	return operators.includes(calcString.at(position));
 }
-
-document.addEventListener("keydown", function (event) {
-	console.log("key  ", event.key);
-	// console.log(numberButtons[0]);
-
-	const keydownCommands = {
-		// ...Object.fromEntries([...numberButtons.entries()]),
-
-		[clearButton.innerHTML]: clearButton,
-		Delete: clearButton,
-		[equalButton.innerHTML]: equalButton,
-		Enter: equalButton,
-		[delButton.innerHTML]: delButton,
-		Backspace: delButton,
-	};
-	[...numberButtons].forEach((button) => (keydownCommands[button.innerHTML] = button));
-	[...operatorButtons].forEach((button) => (keydownCommands[button.dataset.operator] = button));
-
-	if (Object.keys(keydownCommands).includes(event.key)) {
-		console.log("event.key ", event.key);
-		keydownCommands[event.key].click();
-		keydownCommands[event.key].classList.add("buton-keydown");
-		setTimeout(() => keydownCommands[event.key].classList.remove("buton-keydown"), 100);
-		event.preventDefault();
-	}
-});
