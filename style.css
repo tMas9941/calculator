@@ -50,7 +50,7 @@
 	height: fit-content;
 	background-color: rgb(226, 255, 225);
 	text-align: end;
-	font-size: x-large;
+	font-size: xx-large;
 	white-space: nowrap;
 	overflow-x: auto;
 	overflow-y: hidden;
@@ -88,7 +88,10 @@ button:hover {
 	filter: brightness(1.15);
 }
 button:active {
-	filter: brightness(0.9);
+	filter: brightness(1.9);
+}
+.buton-keydown {
+	filter: brightness(1.9);
 }
 
 .button-operator {
