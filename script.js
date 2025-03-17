@@ -1,4 +1,3 @@
-const prevTextbox = document.getElementById("prev-textbox");
 const currTextbox = document.getElementById("curr-textbox");
 const clearButton = document.getElementById("button-clear");
 const equalButton = document.getElementById("button-equal");
